@@ -1,4 +1,4 @@
-variable "location" {
+variable location {
     description = "The location where resources are created"
     default     = "us-east-1"
 }
@@ -22,6 +22,18 @@ variable env_prefix {
 variable instance_type {
     description = "The size of the instance"
     default = "t2.micro"
+}
+
+variable ingress_port_1 {
+    description = "The additional ingress port #1 the instance apart from SSH port"
+    type = number
+    default = 80
+}
+
+variable ingress_port_2 {
+    description = "The additional ingress port #2 the instance apart from SSH port"
+    type = number
+    default = 8000
 }
 
 variable public_key_location {

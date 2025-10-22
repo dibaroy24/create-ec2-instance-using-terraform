@@ -52,7 +52,9 @@ resource "aws_internet_gateway" "myapp-igw" {
 }
 
 # Create Security Group
-resource "aws_default_security_group" "myapp-default-sg" {
+resource "aws_security_group" "ec2_sg" {
+  name        = "ec2-sg"
+  description = "Allow specific ports"
   vpc_id = aws_vpc.myapp-vpc.id
 
   ingress {
@@ -63,15 +65,15 @@ resource "aws_default_security_group" "myapp-default-sg" {
   }
 
   ingress {
-    from_port = 80
-    to_port = 80
+    from_port = var.ingress_port_1
+    to_port = var.ingress_port_1
     protocol = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port = 8000
-    to_port = 8000
+    from_port = var.ingress_port_2
+    to_port = var.ingress_port_2
     protocol = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -92,7 +94,7 @@ resource "aws_default_security_group" "myapp-default-sg" {
 resource "aws_eip" "my_elastic_ip" {
   domain     = "vpc"
   instance   = aws_instance.myapp-server.id
-  depends_on = [aws_internet_gateway.my_igw] # Ensure IGW is created before EIP
+  depends_on = [aws_internet_gateway.myapp-igw] # Ensure IGW is created before EIP
 }
 
 
@@ -119,13 +121,13 @@ resource "aws_instance" "myapp-server" {
   ami = data.aws_ami.latest-amazon-linux-image.id
   instance_type = var.instance_type
   subnet_id = aws_subnet.myapp-subnet-1.id
-  vpc_security_group_ids = [aws_default_security_group.myapp-default-sg.id]
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   availability_zone = "${var.location}a"
 
   associate_public_ip_address = true
   key_name = aws_key_pair.ssh-key.key_name
 
-  user_data = file("install-nginx.sh")
+  user_data = file("install-services.sh")
   user_data_replace_on_change = true
 
   tags = {
