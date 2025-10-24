@@ -14,3 +14,8 @@ output "elastic_ip" {
     description = "The Elastic IP address of the EC2 instance"
     value       = aws_eip.my_elastic_ip.public_ip
 }
+
+output "eip_public_dns" {
+    description = "The public DNS name of the Elastic IP of the EC2 instance"
+    value       = aws_eip.my_elastic_ip.public_dns
+}
