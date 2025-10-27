@@ -8,9 +8,14 @@ variable vpc_cidr_block {
     default     = "10.0.0.0/16"
 }
 
-variable subnet_cidr_block {
-    description = "The CIDR block reserved for the subnet"
+variable subnet_cidr_block_1 {
+    description = "The CIDR block reserved for the subnet-1"
     default     = "10.0.1.0/24"
+}
+
+variable subnet_cidr_block_2 {
+    description = "The CIDR block reserved for the subnet-2"
+    default     = "10.0.2.0/24"
 }
 
 # variable avail_zone {}
@@ -21,7 +26,7 @@ variable env_prefix {
 
 variable instance_type {
     description = "The size of the instance"
-    default = "t2.micro"
+    default = "t2.medium"
 }
 
 variable ingress_port_1 {

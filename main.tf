@@ -14,13 +14,22 @@ resource "aws_vpc" "myapp-vpc" {
   }
 }
 
-# Create Subnet
+# Create Public Subnets
 resource "aws_subnet" "myapp-subnet-1" {
   vpc_id = aws_vpc.myapp-vpc.id
-  cidr_block = var.subnet_cidr_block
+  cidr_block = var.subnet_cidr_block_1
   availability_zone = "${var.location}a"
   tags = {
-    Name: "${var.env_prefix}-subnet-1"
+    Name: "${var.env_prefix}-pub-subnet-1"
+  }
+}
+
+resource "aws_subnet" "myapp-subnet-2" {
+  vpc_id = aws_vpc.myapp-vpc.id
+  cidr_block = var.subnet_cidr_block_2
+  availability_zone = "${var.location}b"
+  tags = {
+    Name: "${var.env_prefix}-pub-subnet-2"
   }
 }
 
@@ -61,7 +70,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port = 22
     to_port = 22
     protocol = "TCP"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"] # Limit to your IP in production
   }
 
   ingress {
@@ -91,13 +100,24 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
+# Create an Elastic IP
 resource "aws_eip" "my_elastic_ip" {
   domain     = "vpc"
   instance   = aws_instance.myapp-server.id
   depends_on = [aws_internet_gateway.myapp-igw] # Ensure IGW is created before EIP
+
+  tags = {
+    Name: "${var.env_prefix}-eip"
+  }
 }
 
+# Associate the Elastic IP to the instance
+resource "aws_eip_association" "vpc_eip_association" {
+  instance_id   = aws_instance.myapp-server.id
+  allocation_id = aws_eip.my_elastic_ip.id
+}
 
+/*
 data "aws_ami" "latest-amazon-linux-image" {
   most_recent = true
   owners = ["amazon"]
@@ -111,14 +131,24 @@ data "aws_ami" "latest-amazon-linux-image" {
     values = ["hvm"]
   }
 }
+*/
+
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+}
 
 resource "aws_key_pair" "ssh-key" {
   key_name = "server-key"
-  public_key = file(var.public_key_location)
+  public_key = file(var.public_key_location) # Path to your public key file
 }
 
 resource "aws_instance" "myapp-server" {
-  ami = data.aws_ami.latest-amazon-linux-image.id
+  ami = data.aws_ami.amazon_linux_2.id
   instance_type = var.instance_type
   subnet_id = aws_subnet.myapp-subnet-1.id
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
@@ -127,7 +157,7 @@ resource "aws_instance" "myapp-server" {
   associate_public_ip_address = true
   key_name = aws_key_pair.ssh-key.key_name
 
-  user_data = file("install-services.sh")
+  user_data = file("scripts/install-services.sh")
   user_data_replace_on_change = true
 
   tags = {
