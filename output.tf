@@ -7,7 +7,8 @@ output "ec2_public_dns" {
 }
 
 output "aws_ami_id" {
-    value = data.aws_ami.amazon_linux_2.id
+    # value = data.aws_ami.amazon_linux_2.id
+    value = data.aws_ami.latest-amazon-ubuntu-image.id
 }
 
 /*

@@ -100,6 +100,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
+/*
 # Create an Elastic IP
 resource "aws_eip" "my_elastic_ip" {
   domain     = "vpc"
@@ -116,6 +117,7 @@ resource "aws_eip_association" "vpc_eip_association" {
   instance_id   = aws_instance.myapp-server.id
   allocation_id = aws_eip.my_elastic_ip.id
 }
+*/
 
 /*
 data "aws_ami" "latest-amazon-linux-image" {
@@ -149,7 +151,7 @@ data "aws_ami" "latest-amazon-ubuntu-image" {
   owners = ["amazon"]
   filter {
     name = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-noble-24.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-arm64-server-*"]
   }
 
   filter {
@@ -174,7 +176,8 @@ resource "aws_instance" "myapp-server" {
   associate_public_ip_address = true
   key_name = aws_key_pair.ssh-key.key_name
 
-  user_data = file("scripts/install-services.sh")
+  # user_data = file("scripts/install-services.sh")
+  user_data = file("scripts/install-docker.sh")
   user_data_replace_on_change = true
 
   tags = {
