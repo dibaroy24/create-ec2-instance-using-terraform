@@ -133,12 +133,28 @@ data "aws_ami" "latest-amazon-linux-image" {
 }
 */
 
+/*
 data "aws_ami" "amazon_linux_2" {
   most_recent = true
   owners      = ["amazon"]
   filter {
     name   = "name"
     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+}
+*/
+
+data "aws_ami" "latest-amazon-ubuntu-image" {
+  most_recent = true
+  owners = ["amazon"]
+  filter {
+    name = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-noble-24.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
@@ -148,7 +164,8 @@ resource "aws_key_pair" "ssh-key" {
 }
 
 resource "aws_instance" "myapp-server" {
-  ami = data.aws_ami.amazon_linux_2.id
+  # ami = data.aws_ami.latest-amazon-linux-image.id
+  ami = data.aws_ami.latest-amazon-ubuntu-image.id
   instance_type = var.instance_type
   subnet_id = aws_subnet.myapp-subnet-1.id
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
@@ -164,4 +181,3 @@ resource "aws_instance" "myapp-server" {
     Name: "${var.env_prefix}-server"
   }
 }
-
