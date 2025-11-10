@@ -151,7 +151,7 @@ data "aws_ami" "latest-amazon-ubuntu-image" {
   owners = ["amazon"]
   filter {
     name = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-arm64-server-*"]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
   }
 
   filter {

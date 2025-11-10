@@ -21,4 +21,4 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo service docker start
 
 # Enable Docker commands without sudo (optional but recommended)
-sudo usermod -aG docker ec2-user
+sudo usermod -aG docker $USER
